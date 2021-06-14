@@ -18,6 +18,9 @@ enter you're database name where it says `enter_ure_db_name_here` :
 
 ![exec test](https://i.ibb.co/xH4q6Pb/image.png)
 
+and a secret message in the auth.controller for the jwt secret to sign a token,
+![exec test](https://i.ibb.co/hBhYf3z/image.png)
+
 type on a terminal : 
 
 ```sh
