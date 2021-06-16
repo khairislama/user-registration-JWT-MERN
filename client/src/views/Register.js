@@ -1,7 +1,12 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import '../assets/stylesheets/login.css'
 
 export default function Register() {
+    const rememberMe = useRef(true)
+
+    function changeRememberMe(){
+        console.log(rememberMe.current.checked) 
+    }
   return (
     <div className="d-md-flex half">
         <div className="bg" style={{ backgroundImage: "url('/images/bg_1.jpg')" }}></div>

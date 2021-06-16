@@ -1,10 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
-import LoginForm from './views/Login'
+import Router from './Router';
+
 
 function App() {
   return (
     <div className="App">
-      <LoginForm />
+      <Router />
     </div>
   );
 }
