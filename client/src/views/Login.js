@@ -8,9 +8,10 @@ export default function Login() {
         console.log(rememberMe.current.checked) 
     }
   return (
+    <div className="login">
     <div className="d-md-flex half">
         <div className="bg" style={{ backgroundImage: "url('/images/bg_1.jpg')" }}></div>
-            <div className="contents">
+        <div className="contents">
             <div className="container">
                 <div className="row align-items-center justify-content-center">
                 <div className="col-md-12">
@@ -33,25 +34,26 @@ export default function Login() {
                             <span className="ms-2">Remember me</span>
                         </label>
                         <span className="ml-auto">
-                            <a href="#" className="forgot-pass">Forgot Password</a>
+                            <a href="#" className="loginA forgot-pass">Forgot Password</a>
                         </span> 
                         </div>
                         <input type="submit" value="Log In" className="btn col-12 py-2 btn-primary" />
                         <span className="text-center my-3 d-block">or</span>                                
                         <div className="">
-                        <a href="#" className="btn col-12 py-2 my-2 btn-facebook">
+                        <a href="#" className="loginA btn col-12 py-2 my-2 btn-facebook">
                             <i className="fab fa-facebook-f me-3"></i> Login with facebook
                         </a>
-                        <a href="#" className="btn col-12 py-2 btn-google">
+                        <a href="#" className="loginA btn col-12 py-2 btn-google">
                             <i className="fab fa-google me-3"></i> Login with Google
                         </a>
                         </div>
                     </form>
                     </div>
                 </div>
-                </div>
+            </div>
             </div>
         </div>    
-      </div>
+    </div>
+    </div>
   )
 }
