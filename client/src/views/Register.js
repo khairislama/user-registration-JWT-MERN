@@ -11,6 +11,9 @@ export default function Register() {
     const [repeatPassword, setRepeatPassword] = useState("")
     const [firstname, setFirstname] = useState("")
     const [lastname, setLastname] = useState("")
+    const [firstnameInput, setFirstnameInput] = useState("")
+    const [lastnameInput, setLastnameInput] = useState("")
+    const [identicalPasswords, setIdenticalPasswords] = useState(true)
     const {getLoggedIn} = useContext(AuthConext);
     const acceptConditions = useRef(false)
     const submitButton = useRef(undefined)
@@ -44,6 +47,15 @@ export default function Register() {
         }
     }
 
+    function checkPassword(){
+        if (repeatPassword === password) return setIdenticalPasswords(true)
+        else return setIdenticalPasswords(false)
+    }
+
+    function checkPasswordSecurity(){
+        // HERE GOES THE ALGO THE CHECK PASSWORD SECURITY
+    }
+
   return (
     <div className="register">
     <div className="d-md-flex half">
@@ -61,35 +73,39 @@ export default function Register() {
                     </div>
                     <span className="text-center my-3 d-block mt-4">or</span>  
                     <form onSubmit={handleRegister} >
-                        <div className="form-group first">
+                        <div className="form-group first registerInput">
                         <label htmlFor="username">Username</label>
                         <input type="text" className="form-control my-2" placeholder="your-email@gmail.com" id="username"
                             name="username" value={username} onChange={(e)=>setUsername(e.target.value)} required
                             onBlur={checkEmailValidation}
-                        />
+                        /> 
                         </div>
-                        <div className="form-group first">
+                        <div className="form-group first registerInput">
                         <label htmlFor="Firstname">First Name</label>
-                        <input type="text" className="form-control my-2" placeholder="your first name" id="Firstname" 
+                        <input type="text" className={`form-control my-2 ${firstnameInput}`} placeholder="your first name" id="Firstname" 
                             name="firstname" value={firstname} onChange={(e)=>setFirstname(e.target.value)} required
+                            onBlur={()=>{(firstname.length < 3) ? setFirstnameInput("invalid") : setFirstnameInput("valid") }}
                         />
                         </div>
-                        <div className="form-group first">
+                        <div className="form-group first registerInput">
                         <label htmlFor="Lastname">Last Name</label>
-                        <input type="text" className="form-control my-2" placeholder="your last name" id="Lastname" 
+                        <input type="text" className={`form-control my-2 ${lastnameInput}`} placeholder="your last name" id="Lastname" 
                             name="lastname" value={lastname} onChange={(e)=>setLastname(e.target.value)} required
+                            onBlur={()=>{(lastname.length < 3) ? setLastnameInput("invalid") : setLastnameInput("valid") }}
                         />
                         </div>
-                        <div className="form-group last my-3">
+                        <div className="form-group last my-3 registerInput">
                         <label htmlFor="password">Password</label>
                         <input type="password" className="form-control my-2" placeholder="Your Password" id="password" 
-                            name="password" value={password} onChange={(e)=>setPassword(e.target.value)} required
+                            name="password" value={password} onChange={(e)=>{setPassword(e.target.value); setRepeatPassword("")}} required
+                            onBlur={checkPasswordSecurity}
                         />
                         </div>        
-                        <div className="form-group last my-3">
+                        <div className="form-group last my-3 registerInput">
                         <label htmlFor="password2">Repeat Password</label>
                         <input type="password" className="form-control my-2" placeholder="Repeat Password" id="password2" 
                             name="repeatPassword" value={repeatPassword} onChange={(e)=>setRepeatPassword(e.target.value)} required
+                            onBlur={checkPassword}
                         />
                         </div>           
                         <div className="d-sm-flex mb-5 align-items-center form-check">

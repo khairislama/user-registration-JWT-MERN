@@ -89,6 +89,18 @@
   border-radius: 50%;
 }
 
+
+.registerInput .invalid{
+  border: 2px solid red !important;
+  color: red !important;
+}
+
+.registerInput .valid{
+  border: 2px solid green !important;
+  color: green !important;
+}
+
+
 @media (max-width: 767.98px) {
   .half .bg {
     width: 100%;
