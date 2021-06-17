@@ -33,7 +33,7 @@ export default function Register() {
                 password,
                 repeatPassword
             };
-            await axios.post("http//localhost:3001/api/auth/register", registerData);
+            await axios.post("http://localhost:3001/api/auth/register", registerData);
             await getLoggedIn();
             history.push("/");
         } catch(err) {
@@ -43,22 +43,21 @@ export default function Register() {
 
     async function checkEmailValidation(){
         try {
-            const emailNotExistInDb = await axios.head("http//localhost:3001/api/auth/email");
-            (emailNotExistInDb) ? setEmailInput("valid") : setEmailInput("invalid");
+            const emailNotExistInDb = await axios.get(`http://localhost:3001/api/auth/${username}`);
+            (emailNotExistInDb.data.accept) ? setEmailInput("valid") : setEmailInput("invalid");
         } catch(err) {
             console.error(err);
         }
-    }
-
-    function checkPassword(){
-        if (repeatPassword === password) return setIdenticalPasswords("valid");
-        else return setIdenticalPasswords("invalid");
     }
 
     function checkPasswordSecurity(){
         // HERE GOES THE ALGO THE CHECK PASSWORD SECURITY
         if (password.length < 10) return setPasswordInput("invalid");
         setPasswordInput("valid")
+    }
+
+    function checkToOpenSubmitBtn(){
+        submitButton.current.disabled = !acceptConditions.current.checked
     }
 
   return (
@@ -137,7 +136,7 @@ export default function Register() {
                         <label htmlFor="password2">Repeat Password</label>
                         <input type="password" className={`form-control my-2 ${identicalPasswords}`} placeholder="Repeat Password" id="password2" 
                             name="repeatPassword" value={repeatPassword} onChange={(e)=>setRepeatPassword(e.target.value)} required
-                            onBlur={checkPassword}
+                            onBlur={()=>(repeatPassword === password) ? setIdenticalPasswords("valid") : setIdenticalPasswords("invalid") }
                         />
                         {
                             identicalPasswords === "invalid" && 
@@ -147,7 +146,9 @@ export default function Register() {
                         }
                         </div>           
                         <div className="d-sm-flex mb-5 align-items-center form-check">
-                        <input ref={acceptConditions} className="form-check-input" type="checkbox" value="" if="acceptConditions" />
+                        <input ref={acceptConditions} className="form-check-input" type="checkbox" value="" if="acceptConditions"
+                            onChange={checkToOpenSubmitBtn}
+                        />
                         <label className="mb-sm-0 col-11 form-check-label" htmlFor="acceptConditions">
                             <span className="ms-2 text-muted" style={{ fontSize:"12px" }} >I have read and accepted the website's General Conditions of Use</span>
                         </label>

@@ -20,7 +20,7 @@ export default function Login() {
                 password,
                 rememberMe: rememberMe.current.checked
             }
-            await axios.post("http//localhost:3001/api/auth/login", loginData)
+            await axios.post("http://localhost:3001/api/auth/login", loginData)
             await getLoggedIn()
             history.push("/")
         }catch(err){
