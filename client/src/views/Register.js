@@ -1,22 +1,24 @@
-import React, { useContext, useRef, useState } from 'react'
-import '../assets/stylesheets/login.css'
-import axios from 'axios'
-import { useHistory } from 'react-router'
-import AuthConext from '../context/AuthContext'
+import React, { useContext, useRef, useState } from 'react';
+import '../assets/stylesheets/login.css';
+import axios from 'axios';
+import { useHistory } from 'react-router';
+import AuthConext from '../context/AuthContext';
 
 export default function Register() {
 
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [repeatPassword, setRepeatPassword] = useState("")
-    const [firstname, setFirstname] = useState("")
-    const [lastname, setLastname] = useState("")
-    const [firstnameInput, setFirstnameInput] = useState("")
-    const [lastnameInput, setLastnameInput] = useState("")
-    const [identicalPasswords, setIdenticalPasswords] = useState(true)
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [repeatPassword, setRepeatPassword] = useState("");
+    const [firstname, setFirstname] = useState("");
+    const [lastname, setLastname] = useState("");
+    const [firstnameInput, setFirstnameInput] = useState("");
+    const [lastnameInput, setLastnameInput] = useState("");
+    const [emailInput, setEmailInput] = useState("");
+    const [passwordInput, setPasswordInput] = useState("");
+    const [identicalPasswords, setIdenticalPasswords] = useState("");
     const {getLoggedIn} = useContext(AuthConext);
-    const acceptConditions = useRef(false)
-    const submitButton = useRef(undefined)
+    const acceptConditions = useRef(false);
+    const submitButton = useRef(undefined);
     const history = useHistory();
 
 
@@ -30,30 +32,33 @@ export default function Register() {
                 lastname,
                 password,
                 repeatPassword
-            }
-            await axios.post("http//localhost:3001/api/auth/register", registerData)
+            };
+            await axios.post("http//localhost:3001/api/auth/register", registerData);
             await getLoggedIn();
             history.push("/");
         } catch(err) {
-            console.error(err)
+            console.error(err);
         }
     }
 
     async function checkEmailValidation(){
         try {
-            await axios.head("http//localhost:3001/api/auth/email")
+            const emailNotExistInDb = await axios.head("http//localhost:3001/api/auth/email");
+            (emailNotExistInDb) ? setEmailInput("valid") : setEmailInput("invalid");
         } catch(err) {
-            console.error(err)
+            console.error(err);
         }
     }
 
     function checkPassword(){
-        if (repeatPassword === password) return setIdenticalPasswords(true)
-        else return setIdenticalPasswords(false)
+        if (repeatPassword === password) return setIdenticalPasswords("valid");
+        else return setIdenticalPasswords("invalid");
     }
 
     function checkPasswordSecurity(){
         // HERE GOES THE ALGO THE CHECK PASSWORD SECURITY
+        if (password.length < 10) return setPasswordInput("invalid");
+        setPasswordInput("valid")
     }
 
   return (
@@ -79,6 +84,21 @@ export default function Register() {
                             name="username" value={username} onChange={(e)=>setUsername(e.target.value)} required
                             onBlur={checkEmailValidation}
                         /> 
+                        {
+                            emailInput === "valid" && 
+                                <p style={{color:"green", fontSize:"11px"}}>
+                                    ✓ Email valid ✓
+                                </p>
+                        }
+                        {
+                            emailInput === "invalid" && 
+                                <button style={{color:"red", fontSize:"11px"}}
+                                onClick={()=>{
+                                    history.push("/login")
+                                }} className="loginA forgot-password mb-2" >
+                                    X This email already exists in our database, click me to login X
+                                </button>
+                        }
                         </div>
                         <div className="form-group first registerInput">
                         <label htmlFor="Firstname">First Name</label>
@@ -86,6 +106,12 @@ export default function Register() {
                             name="firstname" value={firstname} onChange={(e)=>setFirstname(e.target.value)} required
                             onBlur={()=>{(firstname.length < 3) ? setFirstnameInput("invalid") : setFirstnameInput("valid") }}
                         />
+                        {
+                            firstnameInput === "invalid" && 
+                                <p style={{color:"red", fontSize:"11px"}}>
+                                    X Please enter a valid first name X
+                                </p>
+                        }
                         </div>
                         <div className="form-group first registerInput">
                         <label htmlFor="Lastname">Last Name</label>
@@ -93,20 +119,32 @@ export default function Register() {
                             name="lastname" value={lastname} onChange={(e)=>setLastname(e.target.value)} required
                             onBlur={()=>{(lastname.length < 3) ? setLastnameInput("invalid") : setLastnameInput("valid") }}
                         />
+                        {
+                            lastnameInput === "invalid" && 
+                                <p style={{color:"red", fontSize:"11px"}}>
+                                    X Please enter a valid last name X
+                                </p>
+                        }
                         </div>
                         <div className="form-group last my-3 registerInput">
                         <label htmlFor="password">Password</label>
-                        <input type="password" className="form-control my-2" placeholder="Your Password" id="password" 
+                        <input type="password" className={`form-control my-2 ${passwordInput}`} placeholder="Your Password" id="password" 
                             name="password" value={password} onChange={(e)=>{setPassword(e.target.value); setRepeatPassword("")}} required
                             onBlur={checkPasswordSecurity}
                         />
                         </div>        
                         <div className="form-group last my-3 registerInput">
                         <label htmlFor="password2">Repeat Password</label>
-                        <input type="password" className="form-control my-2" placeholder="Repeat Password" id="password2" 
+                        <input type="password" className={`form-control my-2 ${identicalPasswords}`} placeholder="Repeat Password" id="password2" 
                             name="repeatPassword" value={repeatPassword} onChange={(e)=>setRepeatPassword(e.target.value)} required
                             onBlur={checkPassword}
                         />
+                        {
+                            identicalPasswords === "invalid" && 
+                                <p style={{color:"red", fontSize:"11px"}}>
+                                    X Please enter the same password twice X
+                                </p>
+                        }
                         </div>           
                         <div className="d-sm-flex mb-5 align-items-center form-check">
                         <input ref={acceptConditions} className="form-check-input" type="checkbox" value="" if="acceptConditions" />
