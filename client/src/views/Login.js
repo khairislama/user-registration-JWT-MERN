@@ -10,7 +10,7 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const {getLoggedIn} = useContext(AuthConext);
     const history = useHistory();
-    const rememberMe = useRef(false)
+    const rememberMe = useRef(false);
 
     async function login(e){
         e.preventDefault();
@@ -20,9 +20,11 @@ export default function Login() {
                 password,
                 rememberMe: rememberMe.current.checked
             }
-            await axios.post("http://localhost:3001/api/auth/login", loginData)
-            await getLoggedIn()
-            history.push("/")
+            const loginTry = await axios.post("http://localhost:3001/api/auth/login", loginData)
+            if (loginTry.data.success){
+                await getLoggedIn()
+                history.push("/")
+            }        
         }catch(err){
             console.error(err)
         }        
