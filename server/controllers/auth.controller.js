@@ -56,7 +56,7 @@ module.exports.addUser = async (req, res) =>{
 module.exports.logUser = async (req, res) =>{
     try {
         // GETTING VARIABLES FROM FORM 
-        const {username, password} = req.body;
+        const {username, password, rememberMe} = req.body;
 
         // ***** VERIFICATIONS *****
         // TEST IF A FIELD IS EMPTY
@@ -78,9 +78,16 @@ module.exports.logUser = async (req, res) =>{
         }, JWT_SECRET);
 
         // SEND THE TOKEN IN A HTTP-Only COOKIE
-        res.cookie("auth-token", token, {
-            httpOnly: true,
-        });
+        if (rememberMe){
+            res.cookie("auth-token", token, {
+                httpOnly: true
+            });
+        }else{
+            res.cookie("auth-token", token, {
+                httpOnly: true,
+                expires: new Date(new Date().getTime()+(1*60*60*1000)) //after 1 hour
+            });
+        }        
 
         // SEND BACK THE DATA
         res.json({success: true, message: `welcome back ${username}`}).send();
