@@ -8,20 +8,22 @@ module.exports.addUser = async (req, res) =>{
         // GETTING VARIABLES FROM FORM 
         const {
             username,
+            firstname,
+            lastname,
             password, 
-            passwordVerify
+            repeatPassword
         } = req.body;
 
         // ***** VERIFICATIONS *****
         // TEST IF A FIELD IS EMPTY
-        if (!username || !password || !passwordVerify) 
+        if (!username || !password || !repeatPassword || !firstname || !lastname) 
             return res.status(400).json({success: false, errorMessage: "please enter all required fields."});
 
         // TEST IF PASSWORD LENGTH < 6 CARACTERS
         if (password.length < 6 ) return res.status(400).json({success: false, errorMessage: "please enter a password of at least 6 characters."});
 
         // TEST IF PASSWORD AND PASSWORD VERIFICATION ARE NOT THE SAME
-        if (password !== passwordVerify) return res.status(400).json({success: false, errorMessage: "please enter the same password twice."});
+        if (password !== repeatPassword) return res.status(400).json({success: false, errorMessage: "please enter the same password twice."});
 
         // VERIFY IF A USER WITH THE SAME USERNAME EXISTS
         const existingUser = await User.findOne({username});
@@ -33,11 +35,17 @@ module.exports.addUser = async (req, res) =>{
         const passwordHash = await bcrypt.hash(password, salt);
 
         // SAVING THE NEW USER TO THE DB (USERNAME AND THE HASHED VERSION OF THE PASSWORD)
-        const newUser = new User({username, passwordHash});
+        const newUser = new User({username, firstname, lastname, passwordHash});
         const savedUser = await newUser.save();
 
         // SIGN THE TOKEN WITH SOME USER DATA THAT WE WILL NEED 
-        const token = jwt.sign({id: savedUser._id, username: savedUser.username, userImage: savedUser.userImage}, JWT_SECRET);
+        const token = jwt.sign({
+            id: savedUser._id, 
+            username: savedUser.username, 
+            firstname: savedUser.firstname,
+            lastname: savedUser.lastname,
+            userImage: savedUser.userImage
+        }, JWT_SECRET);
 
         // SEND THE TOKEN IN A HTTP-Only COOKIE
         res.cookie("auth-token", token, {
@@ -127,6 +135,22 @@ module.exports.isLoggedIn = (req, res)=>{
             success: true,
             userInfo : verified
         });
+    } catch(err) {
+
+        // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
+        res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
+    }
+}
+
+module.exports.checkEmail = async (req, res)=>{
+    try {
+        const username = req.params.email;
+        
+        const exists = await User.findOne({username});
+
+        if (exists) return res.json({accept: false})
+        return res.json({accept:true})
+
     } catch(err) {
 
         // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
