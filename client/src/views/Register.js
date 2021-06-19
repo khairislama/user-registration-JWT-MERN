@@ -2,6 +2,7 @@ import React, { useContext, useRef, useState } from 'react';
 import '../assets/stylesheets/login.css';
 import axios from 'axios';
 import { useHistory } from 'react-router';
+import PasswordStrengthBar from 'react-password-strength-bar';
 import AuthConext from '../context/AuthContext';
 
 export default function Register() {
@@ -16,6 +17,7 @@ export default function Register() {
     const [emailInput, setEmailInput] = useState("");
     const [passwordInput, setPasswordInput] = useState("");
     const [identicalPasswords, setIdenticalPasswords] = useState("");
+    const [errorMessage, setErrorMessage] = useState(false);
     const {getLoggedIn} = useContext(AuthConext);
     const acceptConditions = useRef(false);
     const submitButton = useRef(undefined);
@@ -24,7 +26,13 @@ export default function Register() {
 
     async function handleRegister(e){
         //HERE GOES THE HANDLER OF THE REGISTER 
-        e.preventDefault()
+        e.preventDefault();
+        if (firstnameInput === "invalid" ||
+            lastnameInput === "invalid" ||
+            emailInput === "invalid" ||
+            passwordInput === "invalid" ||
+            identicalPasswords === "invalid") 
+            return setErrorMessage(true)
         try {
             const registerData = {
                 username,
@@ -50,16 +58,6 @@ export default function Register() {
         }
     }
 
-    function checkPasswordSecurity(){
-        // HERE GOES THE ALGO THE CHECK PASSWORD SECURITY
-        if (password.length < 10) return setPasswordInput("invalid");
-        setPasswordInput("valid")
-    }
-
-    function checkToOpenSubmitBtn(){
-        submitButton.current.disabled = !acceptConditions.current.checked
-    }
-
   return (
     <div className="register">
     <div className="d-md-flex half">
@@ -79,7 +77,7 @@ export default function Register() {
                     <form onSubmit={handleRegister} >
                         <div className="form-group first registerInput">
                         <label htmlFor="username">Username</label>
-                        <input type="text" className="form-control my-2" placeholder="your-email@gmail.com" id="username"
+                        <input type="text" className={`form-control my-2 ${emailInput}`} placeholder="your-email@gmail.com" id="username"
                             name="username" value={username} onChange={(e)=>setUsername(e.target.value)} required
                             onBlur={checkEmailValidation}
                         /> 
@@ -129,8 +127,9 @@ export default function Register() {
                         <label htmlFor="password">Password</label>
                         <input type="password" className={`form-control my-2 ${passwordInput}`} placeholder="Your Password" id="password" 
                             name="password" value={password} onChange={(e)=>{setPassword(e.target.value); setRepeatPassword("")}} required
-                            onBlur={checkPasswordSecurity}
+                            onBlur={()=>(password.length < 6) ? setPasswordInput("invalid") : setPasswordInput("valid") }
                         />
+                        <PasswordStrengthBar password={password} />
                         </div>        
                         <div className="form-group last my-3 registerInput">
                         <label htmlFor="password2">Repeat Password</label>
@@ -147,12 +146,19 @@ export default function Register() {
                         </div>           
                         <div className="d-sm-flex mb-5 align-items-center form-check">
                         <input ref={acceptConditions} className="form-check-input" type="checkbox" value="" if="acceptConditions"
-                            onChange={checkToOpenSubmitBtn}
+                            onChange={()=>{submitButton.current.disabled = !acceptConditions.current.checked}}
                         />
                         <label className="mb-sm-0 col-11 form-check-label" htmlFor="acceptConditions">
                             <span className="ms-2 text-muted" style={{ fontSize:"12px" }} >I have read and accepted the website's General Conditions of Use</span>
                         </label>
                         </div> 
+                        {
+                            errorMessage && (
+                                <p style={{color:"red", fontSize:"11px"}}>
+                                    X Please! all fields are required X
+                                </p>
+                            )
+                        }
                         <input ref={submitButton} type="submit" value="Register" className="btn col-12 py-2 btn-primary" disabled />                 
                     </form>
                     </div>
