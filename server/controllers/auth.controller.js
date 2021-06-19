@@ -16,7 +16,7 @@ module.exports.addUser = async (req, res) =>{
 
         // ***** VERIFICATIONS *****
         // TEST IF A FIELD IS EMPTY
-        if (!username || !password || !repeatPassword || !firstname || !lastname) 
+        if (!username || !password || !repeatPassword || !fullname) 
             return res.status(400).json({success: false, errorMessage: "please enter all required fields."});
 
         // TEST IF PASSWORD LENGTH < 6 CARACTERS
@@ -35,15 +35,14 @@ module.exports.addUser = async (req, res) =>{
         const passwordHash = await bcrypt.hash(password, salt);
 
         // SAVING THE NEW USER TO THE DB (USERNAME AND THE HASHED VERSION OF THE PASSWORD)
-        const newUser = new User({username, firstname, lastname, passwordHash});
+        const newUser = new User({username, fullname, passwordHash});
         const savedUser = await newUser.save();
 
         // SIGN THE TOKEN WITH SOME USER DATA THAT WE WILL NEED 
         const token = jwt.sign({
             id: savedUser._id, 
             username: savedUser.username, 
-            firstname: savedUser.firstname,
-            lastname: savedUser.lastname,
+            fullname: savedUser.fullname,
             userImage: savedUser.userImage
         }, JWT_SECRET);
 
@@ -82,6 +81,7 @@ module.exports.logUser = async (req, res) =>{
         const token = jwt.sign({
             id: existingUser._id,
             username: existingUser.username,
+            fullname: savedUser.fullname,
             userImage: existingUser.userImage
         }, JWT_SECRET);
 

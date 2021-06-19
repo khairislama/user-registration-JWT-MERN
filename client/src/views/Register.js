@@ -10,10 +10,8 @@ export default function Register() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");
-    const [firstname, setFirstname] = useState("");
-    const [lastname, setLastname] = useState("");
-    const [firstnameInput, setFirstnameInput] = useState("");
-    const [lastnameInput, setLastnameInput] = useState("");
+    const [fullname, setFullname] = useState("");
+    const [fullnameInput, setFullnameInput] = useState("");
     const [emailInput, setEmailInput] = useState("");
     const [passwordInput, setPasswordInput] = useState("");
     const [identicalPasswords, setIdenticalPasswords] = useState("");
@@ -27,8 +25,7 @@ export default function Register() {
     async function handleRegister(e){
         //HERE GOES THE HANDLER OF THE REGISTER 
         e.preventDefault();
-        if (firstnameInput === "invalid" ||
-            lastnameInput === "invalid" ||
+        if (fullnameInput === "invalid" ||
             emailInput === "invalid" ||
             passwordInput === "invalid" ||
             identicalPasswords === "invalid") 
@@ -36,8 +33,7 @@ export default function Register() {
         try {
             const registerData = {
                 username,
-                firstname,
-                lastname,
+                fullname,
                 password,
                 repeatPassword
             };
@@ -98,28 +94,15 @@ export default function Register() {
                         }
                         </div>
                         <div className="form-group first registerInput">
-                        <label htmlFor="Firstname">First Name</label>
-                        <input type="text" className={`form-control my-2 ${firstnameInput}`} placeholder="your first name" id="Firstname" 
-                            name="firstname" value={firstname} onChange={(e)=>setFirstname(e.target.value)} required
-                            onBlur={()=>{(firstname.length < 3) ? setFirstnameInput("invalid") : setFirstnameInput("valid") }}
+                        <label htmlFor="fullname">Full Name</label>
+                        <input type="text" className={`form-control my-2 ${fullnameInput}`} placeholder="your full name" id="fullname" 
+                            name="fullname" value={fullname} onChange={(e)=>setFullname(e.target.value)} required
+                            onBlur={()=>{(fullname.trim().indexOf(' ') !== -1) ? setFullnameInput("valid") : setFullnameInput("invalid") }}
                         />
                         {
-                            firstnameInput === "invalid" && 
+                            setFullnameInput === "invalid" && 
                                 <p style={{color:"red", fontSize:"11px"}}>
                                     X Please enter a valid first name X
-                                </p>
-                        }
-                        </div>
-                        <div className="form-group first registerInput">
-                        <label htmlFor="Lastname">Last Name</label>
-                        <input type="text" className={`form-control my-2 ${lastnameInput}`} placeholder="your last name" id="Lastname" 
-                            name="lastname" value={lastname} onChange={(e)=>setLastname(e.target.value)} required
-                            onBlur={()=>{(lastname.length < 3) ? setLastnameInput("invalid") : setLastnameInput("valid") }}
-                        />
-                        {
-                            lastnameInput === "invalid" && 
-                                <p style={{color:"red", fontSize:"11px"}}>
-                                    X Please enter a valid last name X
                                 </p>
                         }
                         </div>
@@ -160,6 +143,9 @@ export default function Register() {
                             )
                         }
                         <input ref={submitButton} type="submit" value="Register" className="btn col-12 py-2 btn-primary" disabled />                 
+                        <button className="loginA forgot-password" style={{ fontSize:'12px' }}
+                         onClick={()=>history.push("/login")} 
+                         >Click here to login</button>
                     </form>
                     </div>
                 </div>

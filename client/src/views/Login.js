@@ -72,14 +72,15 @@ export default function Login() {
                         />
                         </div>                
                         <div className="d-sm-flex mb-5 align-items-center form-check">
-                        <input ref={rememberMe} className="form-check-input" type="checkbox" value="" if="rememberMe" />
+                        <input ref={rememberMe} className="form-check-input" type="checkbox" if="rememberMe" />
                         <label className="mb-sm-0 col-8 form-check-label" htmlFor="rememberMe">
-                            <span className="ms-2">Remember me</span>
+                            <span className="ms-3">Remember me</span>
                         </label>
-                        <span className="ml-auto">
+                        <span className="ms-auto">
                             <button onClick={forgotPassword} className="loginA forgot-pass">Forgot Password</button>
-                        </span> 
+                        </span>                         
                         </div>
+                        <button onClick={()=>history.push("/register")} className="loginA forgot-pass">Create an account ?</button>
                         <input type="submit" value="Log In" className="btn col-12 py-2 btn-primary" />
                         <span className="text-center my-3 d-block">or</span>                                
                         <div className="">
