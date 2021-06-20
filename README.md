@@ -2,7 +2,7 @@
 
 In this project, I implement all the needings to have a login, register, userDropdown and logout with all the needing features (forgot password, facebook API,...)
 
-![exec test](https://i.ibb.co/rGXL4ps/screencapture-localhost-3000-register-2021-06-19-23-43-33.png)
+![exec test](https://i.ibb.co/fFd1q7S/screencapture-localhost-3000-register-2021-06-20-23-15-13.png)
 
 ## Installation
 
