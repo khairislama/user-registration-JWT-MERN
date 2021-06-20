@@ -4,7 +4,7 @@ const authController    = require("../controllers/auth.controller");
 router.post("/register", authController.addUser);
 router.post("/login", authController.logUser);
 router.get("/logout", authController.logoutUser);
-router.post("/verify/:uniqueString", authController.verifyEmail);
+router.get("/verify/:uniqueString", authController.verifyEmail);
 router.get("/:email", authController.checkEmail);
 // verify token for frontend
 router.get("/loggedIn", authController.isLoggedIn)

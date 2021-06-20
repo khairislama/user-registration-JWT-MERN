@@ -36,9 +36,15 @@ module.exports.addUser = async (req, res) =>{
         const salt = await bcrypt.genSalt();
         const passwordHash = await bcrypt.hash(password, salt);
 
+        // GENERATE A RANDOM STRING FOR SENDING THE MAIL
+        const uniqueString = randString()
+
         // SAVING THE NEW USER TO THE DB (USERNAME AND THE HASHED VERSION OF THE PASSWORD)
-        const newUser = new User({username, fullname, passwordHash});
+        const newUser = new User({username, fullname, uniqueString, passwordHash});
         const savedUser = await newUser.save();
+
+        // SEND EMAIL
+        sendEmail(username, uniqueString)
 
         // SIGN THE TOKEN WITH SOME USER DATA THAT WE WILL NEED 
         const token = jwt.sign({
@@ -162,7 +168,7 @@ module.exports.checkEmail = async (req, res)=>{
 
 module.exports.verifyEmail = async (req, res)=>{
     try {
-        const uniqueString = req.params.email;
+        const uniqueString = req.params.uniqueString;
         
         const user = await User.findOne({uniqueString: uniqueString})
         if (user){
@@ -196,13 +202,14 @@ function sendEmail(email, uniqueString){
         auth: {
             type: 'OAuth2',
             user: MAIL_USERNAME,
-            pass: MAIL_PASSWORD
+            pass: MAIL_PASSWORD,
+            clientId: process.env.OAUTH_CLIENTID,
+            clientSecret: process.env.OAUTH_CLIENT_SECRET,
+            refreshToken: process.env.OAUTH_REFRESH_TOKEN
         }
     });
-    var mailOptions;
-    let sender = "no-reply"
-    mailOptions = {
-        from: sender,
+    let mailOptions = {
+        from: MAIL_USERNAME,
         to: email,
         subject: "Email confirmation",
         html: `Press <a href=http://localhost:3001/api/auth/verify/${uniqueString}> 
