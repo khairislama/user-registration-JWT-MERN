@@ -3,6 +3,8 @@ const bcrypt            = require("bcryptjs");
 const jwt               = require("jsonwebtoken");
 const nodemailer        = require("nodemailer");
 const JWT_SECRET        = process.env.JWT_SECRET || "hello there this is a secret message that you need to change"
+const MAIL_USERNAME     = process.env.MAIL_USERNAME || "Put you gmail here"
+const MAIL_PASSWORD     = process.env.MAIL_PASSWORD || "Put your password here"
 
 module.exports.addUser = async (req, res) =>{
     try{
@@ -192,8 +194,9 @@ function sendEmail(email, uniqueString){
     var transport = nodemailer.createTransport({
         service: "Gmail",
         auth: {
-            user: "no.reply.auth.mern@gmail.com",
-            pass: "slanaruto96"
+            type: 'OAuth2',
+            user: MAIL_USERNAME,
+            pass: MAIL_PASSWORD
         }
     });
     var mailOptions;
