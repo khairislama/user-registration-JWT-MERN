@@ -84,11 +84,17 @@ export default function Login() {
                         <input type="submit" value="Log In" className="btn col-12 py-2 btn-primary" />
                         <span className="text-center my-3 d-block">or</span>                                
                         <div className="">
-                        <button onClick={loginFacebook} className="loginA btn col-12 py-2 my-2 btn-facebook">
+                        <button onClick={loginFacebook} className="loginA btn col-12 py-2 my-1 btn-facebook">
                             <i className="fab fa-facebook-f me-3"></i> Login with facebook
                         </button>
-                        <button onClick={loginGmail} className="loginA btn col-12 py-2 btn-google">
+                        <button onClick={loginGmail} className="loginA btn col-12 py-2 my-1 btn-google">
                             <i className="fab fa-google me-3"></i> Login with Google
+                        </button>
+                        <button onClick={loginGmail} className="loginA btn col-12 py-2 my-1 btn-github">
+                            <i className="fab fa-github me-3"></i> Login with Github
+                        </button>
+                        <button onClick={loginGmail} className="loginA btn col-12 py-2 my-1 btn-linkedIn">
+                            <i className="fab fa-linkedin me-3"></i> Login with LinkedIn
                         </button>
                         </div>
                     </form>

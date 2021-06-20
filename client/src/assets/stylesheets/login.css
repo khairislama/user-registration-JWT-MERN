@@ -68,16 +68,10 @@
       
 .half .btn { text-decoration: none !important; }
 
-.login .half .btn.btn-facebook {
+.half .btn.btn-facebook {
   display: block;
   background: #3b5998;
   color: #fff; 
-}
-
-.register .half .btn.btn-facebook {
-  background: #3b5998;
-  color: #fff; 
-  border-radius: 50%;
 }
 
 .half .btn.btn-google {
@@ -85,10 +79,24 @@
   color: #fff; 
 }
 
-.register .half .btn.btn-google {
-  border-radius: 50%;
+.half .btn.btn-github{
+  background: #161B12;
+  color: #fff; 
 }
 
+.half .btn.btn-linkedIn{
+  background: #0E76A8;
+  color: #fff; 
+}
+
+.half .btn.btn-circle {
+  width: 50px;
+  height: 50px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33;
+  border-radius: 25px;
+}
 
 .registerInput .invalid{
   border: 2px solid red !important;

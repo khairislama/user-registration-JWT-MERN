@@ -16,6 +16,7 @@ export default function Register() {
     const [passwordInput, setPasswordInput] = useState("");
     const [identicalPasswords, setIdenticalPasswords] = useState("");
     const [errorMessage, setErrorMessage] = useState(false);
+    const [showPassword, setShowPassword] = useState(false)
     const {getLoggedIn} = useContext(AuthConext);
     const acceptConditions = useRef(false);
     const submitButton = useRef(undefined);
@@ -66,8 +67,10 @@ export default function Register() {
                         <h3 className="text-uppercase">Register to <strong>USER AUTHS</strong></h3>
                     </div>
                     <div className="row">
-                        <button className="btn btn-facebook col-3"><i className="fab fa-facebook-f"></i></button>
-                        <button className="btn btn-google col-3"><i className="fab fa-google"></i></button>
+                        <button className="btn btn-facebook btn-circle col-3 me-4 ms-2"><i className="fab fa-facebook-f"></i></button>
+                        <button className="btn btn-google btn-circle col-3 ms-5 me-4"><i className="fab fa-google"></i></button>
+                        <button className="btn btn-github btn-circle col-3 ms-5 me-4"><i className="fab fa-github"></i></button>                        
+                        <button className="btn btn-linkedIn btn-circle col-3 ms-5"><i className="fab fa-linkedin"></i></button>
                     </div>
                     <span className="text-center my-3 d-block mt-4">or</span>  
                     <form onSubmit={handleRegister} >
@@ -107,12 +110,17 @@ export default function Register() {
                         }
                         </div>
                         <div className="form-group last my-3 registerInput">
-                        <label htmlFor="password">Password</label>
-                        <input type="password" className={`form-control my-2 ${passwordInput}`} placeholder="Your Password" id="password" 
-                            name="password" value={password} onChange={(e)=>{setPassword(e.target.value); setRepeatPassword("")}} required
-                            onBlur={()=>(password.length < 6) ? setPasswordInput("invalid") : setPasswordInput("valid") }
-                        />
-                        <PasswordStrengthBar password={password} />
+                            <label htmlFor="password">Password</label>
+                            <div className="input-group">
+                                <input type={(showPassword) ? "text" : "password"}
+                                    className={`form-control my-2 ${passwordInput}`} placeholder="Your Password" id="password" 
+                                    name="password" value={password} onChange={(e)=>{setPassword(e.target.value); setRepeatPassword("")}} required
+                                    onBlur={()=>(password.length < 6) ? setPasswordInput("invalid") : setPasswordInput("valid") } 
+                                    aria-describedby="togglePassword"
+                                /><i className={`input-group-text far my-2 ${(showPassword) ? "fa-eye" : "fa-eye-slash"}`} 
+                                    id="togglePassword" onClick={()=>setShowPassword(!showPassword)} ></i>
+                            </div>
+                            <PasswordStrengthBar password={password} />
                         </div>        
                         <div className="form-group last my-3 registerInput">
                         <label htmlFor="password2">Repeat Password</label>

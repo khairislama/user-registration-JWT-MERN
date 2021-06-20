@@ -1,6 +1,7 @@
 const User              = require("../models/user.model");
 const bcrypt            = require("bcryptjs");
 const jwt               = require("jsonwebtoken");
+const nodemailer        = require("nodemailer");
 const JWT_SECRET        = process.env.JWT_SECRET || "hello there this is a secret message that you need to change"
 
 module.exports.addUser = async (req, res) =>{
@@ -8,8 +9,7 @@ module.exports.addUser = async (req, res) =>{
         // GETTING VARIABLES FROM FORM 
         const {
             username,
-            firstname,
-            lastname,
+            fullname,
             password, 
             repeatPassword
         } = req.body;
@@ -156,4 +156,60 @@ module.exports.checkEmail = async (req, res)=>{
         // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
         res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
     }
+}
+
+module.exports.verifyEmail = async (req, res)=>{
+    try {
+        const uniqueString = req.params.email;
+        
+        const user = await User.findOne({uniqueString: uniqueString})
+        if (user){
+            user.isVerified = true;
+            await user.save()
+            res.json({success: true, message: "User verified successfully"}).redirect("/")
+        }else{
+            res.json({success: false, message: "User not found"})
+        }
+
+    } catch(err) {
+
+        // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
+        res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
+    }
+}
+
+function randString(){
+    const len=12;
+    let randStr = '';
+    for (let i=0; i<len; i++) {
+        const ch = Math.floor((Math.random() * 10 ) +1);
+        randStr += ch;
+    }
+    return randStr
+}
+
+function sendEmail(email, uniqueString){
+    var transport = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+            user: "no.reply.auth.mern@gmail.com",
+            pass: "slanaruto96"
+        }
+    });
+    var mailOptions;
+    let sender = "no-reply"
+    mailOptions = {
+        from: sender,
+        to: email,
+        subject: "Email confirmation",
+        html: `Press <a href=http://localhost:3001/api/auth/verify/${uniqueString}> 
+        here </a> to verify your email.<br>Thanks.`
+    }
+    transport.sendMail(mailOptions, (err, res)=>{
+        if (err){
+            console.log(err);
+        }else {
+            console.log("Message sent")
+        }
+    })
 }
