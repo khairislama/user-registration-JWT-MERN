@@ -1,7 +1,10 @@
-import React from 'react'
-import {Navbar, Nav, Container} from 'react-bootstrap'
+import React, { useContext } from 'react'
+import { Navbar, Nav, Container } from 'react-bootstrap'
+import AuthConext from '../context/AuthContext';
+import UserDropdown from './UserDropdown';
 
 export default function NavbarDark() {
+  const {loggedIn} = useContext(AuthConext);
   return (
     <Navbar sticky="top" collapseOnSelect expand="md" bg="dark" variant="dark">
         <Container>
@@ -12,10 +15,21 @@ export default function NavbarDark() {
             <Nav.Link href="/secret">Secret Page</Nav.Link>
             </Nav>
             <Nav>
-            <Nav.Link href="/register">Register</Nav.Link>
-            <Nav.Link className="ms-3" href="/login">
-                Login
-            </Nav.Link>
+            {
+              loggedIn?.success === false && (
+                <>
+                <Nav.Link href="/register">Register</Nav.Link>
+                <Nav.Link className="ms-3" href="/login">
+                    Login
+                </Nav.Link>
+                </>
+              )
+            }
+            {
+              loggedIn?.success === true && (
+                <UserDropdown />
+              )
+            }
             </Nav>
         </Navbar.Collapse>
         </Container>
