@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import Login from './views/Login'
 import Register from './views/Register'
-import { BrowserRouter , Switch, Route } from 'react-router-dom'
+import { BrowserRouter , Switch, Route, Redirect } from 'react-router-dom'
 import Home from './views/Home'
 import Secret from './views/Secret'
 import AuthConext from './context/AuthContext'
@@ -23,6 +23,14 @@ export default function Router() {
                 <Route path="/register" exact >
                     <Register />
                 </Route>
+                <Route path="/secret" exact render={props =>{
+                  return <Redirect to={{
+                    pathname: "/login",
+                    state: {
+                      from: props.location
+                    }
+                  }} />
+                }}/>
               </>
             )
           }    
