@@ -55,7 +55,7 @@ module.exports.addUser = async (req, res) =>{
         }, JWT_SECRET);
 
         // SEND THE TOKEN IN A HTTP-Only COOKIE
-        res.cookie("auth-token", token, {
+        res.cookie("authToken", token, {
             httpOnly: true,
         });
 
@@ -89,17 +89,17 @@ module.exports.logUser = async (req, res) =>{
         const token = jwt.sign({
             id: existingUser._id,
             username: existingUser.username,
-            fullname: savedUser.fullname,
+            fullname: existingUser.fullname,
             userImage: existingUser.userImage
         }, JWT_SECRET);
 
         // SEND THE TOKEN IN A HTTP-Only COOKIE
         if (rememberMe){
-            res.cookie("auth-token", token, {
+            res.cookie("authToken", token, {
                 httpOnly: true
             });
         }else{
-            res.cookie("auth-token", token, {
+            res.cookie("authToken", token, {
                 httpOnly: true,
                 expires: new Date(new Date().getTime()+(1*60*60*1000)) //after 1 hour
             });
@@ -117,7 +117,7 @@ module.exports.logUser = async (req, res) =>{
 
 module.exports.logoutUser = (req, res) =>{
     // DELETING THE TOKEN
-    res.cookie("auth-token", "", {
+    res.cookie("authToken", "", {
         httpOnly: true,
         expires: new Date(0)
     });
@@ -128,15 +128,13 @@ module.exports.logoutUser = (req, res) =>{
 
 module.exports.isLoggedIn = (req, res)=>{
     try {
-        const token = req.cookies.token;
+        const token = req.cookies.authToken;
 
         // IF USER IS NOT LOGGED IN
         if (!token) return res.json({success: false});
 
         // IF THERE IS A TOKEN, WE VERIFY IT
-        const verified = jwt.verify(token, process.env.JWT_SECRET, (err)=>{
-            if (err) return res.json({success: false});
-        });
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
 
         // ALL CLEAR SO WE SEND OUR DATA BACK
         res.json({
