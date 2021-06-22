@@ -171,7 +171,7 @@ export default function Register() {
                         />
                         <label className="mb-sm-0 col-11 form-check-label" htmlFor="acceptConditions">
                             <span className="ms-2 text-muted" style={{ fontSize:"12px" }} >I have read and accepted the website's  
-                            <button onClick={()=> setModalOpen(true)} className="loginA" ><i>&nbsp;General Conditions&nbsp;</i></button> 
+                            <span onClick={()=> setModalOpen(true)} className="loginA" ><i>&nbsp;General Conditions&nbsp;</i></span> 
                              of Use</span>
                         </label>
                         </div> 
@@ -182,10 +182,9 @@ export default function Register() {
                                 </p>
                             )
                         }
-                        <input ref={submitButton} type="submit" value="Register" className="btn col-12 py-2 btn-primary" disabled />                 
-                        <button className="loginA forgot-password" style={{ fontSize:'12px' }}
-                         onClick={()=>history.push("/login")} 
-                         >Click here to login</button>
+                        <button ref={submitButton} className="btn col-12 py-2 btn-primary" disabled >Register</button>                 
+                        <a className="loginA forgot-password" style={{ fontSize:'12px' }} href="/login"
+                         >Click here to login</a>
                     </form>
                     </div>
                 </div>

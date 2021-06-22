@@ -93,12 +93,9 @@ export default function Login() {
                         }
                         {
                             emailInput === "invalid" && 
-                                <button style={{color:"red", fontSize:"11px"}}
-                                onClick={()=>{
-                                    history.push("/login")
-                                }} className="loginA forgot-password mb-2" >
+                                <a style={{color:"red", fontSize:"11px"}} href="/register" className="loginA forgot-password mb-2" >
                                     X This email does not exists in our database, click me to create a new account X
-                                </button>
+                                </a>
                         }
                         {
                             emailInput === "feelUp" && 
@@ -124,11 +121,11 @@ export default function Login() {
                             <span className="ms-3">Remember me</span>
                         </label>
                         <span className="ms-auto">
-                            <button onClick={handleForgotPasswordSubmit} className="loginA forgot-pass">Forgot Password</button>
+                            <a href="/" onClick={handleForgotPasswordSubmit} className="loginA forgot-pass">Forgot Password</a>
                         </span>                         
                         </div>
-                        <button onClick={()=>history.push("/register")} className="loginA forgot-pass">Create an account ?</button>
-                        <input type="submit" value="Log In" className="btn col-12 py-2 btn-primary" />
+                        <a href="/register" className="loginA forgot-pass">Create an account ?</a>
+                        <button className="btn col-12 py-2 btn-primary" >Log In</button>
                         <span className="text-center my-3 d-block">or</span>                                
                         <div className="">
                         <FacebookLogin

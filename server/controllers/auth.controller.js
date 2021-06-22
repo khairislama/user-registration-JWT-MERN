@@ -126,7 +126,7 @@ module.exports.logoutUser = (req, res) =>{
     });
 
      // SEND BACK THE DATA
-     res.json({success: true, message: `See you soon`}).send();
+     res.json({success: true, message: `See you soon`});
 }
 
 module.exports.isLoggedIn = (req, res)=>{
@@ -175,7 +175,7 @@ module.exports.verifyEmail = async (req, res)=>{
         if (user){
             user.isVerified = true;
             await user.save()
-            res.json({success: true, message: "User verified successfully"}).redirect("/")
+            res.json({success: true, message: "User verified successfully"})
         }else{
             res.json({success: false, message: "User not found"})
         }
@@ -196,6 +196,7 @@ module.exports.checkResetPassword = async (req, res)=>{
         if (existingRset) await ResetPassword.findByIdAndRemove(existingRset._id)
         ResetPassword.create({userID: user._id, resetPasswordToken: tokenHash, expire: new Date(new Date().getTime()+(1*60*60*1000)) });        
         sendResetMail(username, tokenHash, user._id);
+        console.log("mail sent")
 
     } catch(err) {
         // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
@@ -282,7 +283,7 @@ module.exports.facebookLogin = async (req, res)=>{
                     userImage: createdUser.userImage
                 }, JWT_SECRET, {expiresIn: '7d'});
                 res.cookie("authToken", token, {
-                    httpOnly: true,
+                    httpOnly: true
                 });
                 // SEND BACK THE DATA
                 res.json({success: true, message: "LoggedIn successfully"}).send();
