@@ -6,6 +6,7 @@ import PasswordStrengthBar from 'react-password-strength-bar';
 import { Modal } from 'react-bootstrap';
 import AuthConext from '../context/AuthContext';
 import GeneralConditionsModel from '../context/GeneralConditionsModel';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 export default function Register() {
 
@@ -59,6 +60,18 @@ export default function Register() {
         }
     }
 
+    async function responseFacebook(response){
+        const data = {
+            accessToken: response.accessToken,
+            userID: response.userID
+        };
+        const loginTry = await axios.post("http://localhost:3001/api/auth/facebooklogin", data);
+        if (loginTry.data.success){
+            await getLoggedIn()
+            history.push("/")
+        }
+    }
+
     function closeModal(){
         setModalOpen(false)
     }
@@ -75,7 +88,16 @@ export default function Register() {
                         <h3 className="text-uppercase">Register to <strong>USER AUTHS</strong></h3>
                     </div>
                     <div className="row">
-                        <button className="btn btn-facebook btn-circle col-3 me-4 ms-2"><i className="fab fa-facebook-f"></i></button>
+                        <FacebookLogin
+                            appId="795123591193192"
+                            fields="name,email,picture"
+                            callback={responseFacebook}
+                            render={renderProps => (
+                                <button onClick={renderProps.onClick}
+                                className="btn btn-facebook btn-circle col-3 me-4 ms-2"
+                                ><i className="fab fa-facebook-f"></i></button>
+                              )}
+                        /> 
                         <button className="btn btn-google btn-circle col-3 ms-5 me-4"><i className="fab fa-google"></i></button>
                         <button className="btn btn-github btn-circle col-3 ms-5 me-4"><i className="fab fa-github"></i></button>                        
                         <button className="btn btn-linkedIn btn-circle col-3 ms-5"><i className="fab fa-linkedin"></i></button>

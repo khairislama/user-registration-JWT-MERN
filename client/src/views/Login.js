@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 import '../assets/stylesheets/login.css'
 import axios from 'axios'
 import AuthConext from '../context/AuthContext';
+import FacebookLogin from 'react-facebook-login';
 
 export default function Login() {
 
@@ -48,8 +49,16 @@ export default function Login() {
         }
     }
 
-    async function loginFacebook(){
-        // HERE GOES THE LOGIN FACEBOOK ALGO
+    async function responseFacebook(response){
+        const data = {
+            accessToken: response.accessToken,
+            userID: response.userID
+        };
+        const loginTry = await axios.post("http://localhost:3001/api/auth/facebooklogin", data);
+        if (loginTry.data.success){
+            await getLoggedIn()
+            history.push("/")
+        }
     }
 
     async function loginGmail(){
@@ -122,9 +131,13 @@ export default function Login() {
                         <input type="submit" value="Log In" className="btn col-12 py-2 btn-primary" />
                         <span className="text-center my-3 d-block">or</span>                                
                         <div className="">
-                        <button onClick={loginFacebook} className="loginA btn col-12 py-2 my-1 btn-facebook">
-                            <i className="fab fa-facebook-f me-3"></i> Login with facebook
-                        </button>
+                        <FacebookLogin
+                            appId="795123591193192"
+                            fields="name,email,picture"
+                            callback={responseFacebook}
+                            cssClass="loginA btn col-12 py-2 my-1 btn-facebook"
+                            icon="fab fa-facebook-f me-3"
+                        />                        
                         <button onClick={loginGmail} className="loginA btn col-12 py-2 my-1 btn-google">
                             <i className="fab fa-google me-3"></i> Login with Google
                         </button>
