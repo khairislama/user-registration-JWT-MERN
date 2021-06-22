@@ -3,7 +3,9 @@ import '../assets/stylesheets/login.css';
 import axios from 'axios';
 import { useHistory } from 'react-router';
 import PasswordStrengthBar from 'react-password-strength-bar';
+import { Modal } from 'react-bootstrap';
 import AuthConext from '../context/AuthContext';
+import GeneralConditionsModel from '../context/GeneralConditionsModel';
 
 export default function Register() {
 
@@ -16,7 +18,8 @@ export default function Register() {
     const [passwordInput, setPasswordInput] = useState("");
     const [identicalPasswords, setIdenticalPasswords] = useState("");
     const [errorMessage, setErrorMessage] = useState(false);
-    const [showPassword, setShowPassword] = useState(false)
+    const [showPassword, setShowPassword] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
     const {getLoggedIn} = useContext(AuthConext);
     const acceptConditions = useRef(false);
     const submitButton = useRef(undefined);
@@ -48,11 +51,16 @@ export default function Register() {
 
     async function checkEmailValidation(){
         try {
+            if (username.length < 15) return false
             const emailNotExistInDb = await axios.get(`http://localhost:3001/api/auth/${username}`);
             (emailNotExistInDb.data.accept) ? setEmailInput("valid") : setEmailInput("invalid");
         } catch(err) {
             console.error(err);
         }
+    }
+
+    function closeModal(){
+        setModalOpen(false)
     }
 
   return (
@@ -140,7 +148,9 @@ export default function Register() {
                             onChange={()=>{submitButton.current.disabled = !acceptConditions.current.checked}}
                         />
                         <label className="mb-sm-0 col-11 form-check-label" htmlFor="acceptConditions">
-                            <span className="ms-2 text-muted" style={{ fontSize:"12px" }} >I have read and accepted the website's General Conditions of Use</span>
+                            <span className="ms-2 text-muted" style={{ fontSize:"12px" }} >I have read and accepted the website's  
+                            <button onClick={()=> setModalOpen(true)} className="loginA" ><i>&nbsp;General Conditions&nbsp;</i></button> 
+                             of Use</span>
                         </label>
                         </div> 
                         {
@@ -160,8 +170,11 @@ export default function Register() {
                 </div>
             </div>
         </div>    
-        <div className="bg" style={{ backgroundImage: "url('/images/bg_1.jpg')" }}></div>
+        <div className="bg" style={{ backgroundImage: "url('/images/bg_1.jpg')" }}></div>        
     </div>
+    <Modal show={modalOpen} onHide={closeModal} >
+        <GeneralConditionsModel closeModal={closeModal} />
+    </Modal>
     </div>
   )
 }

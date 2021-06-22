@@ -5,15 +5,19 @@ import { BrowserRouter , Switch, Route, Redirect } from 'react-router-dom'
 import Home from './views/Home'
 import Secret from './views/Secret'
 import AuthConext from './context/AuthContext'
+import ResetPasswordForm from './views/ResetPasswordForm'
 
 export default function Router() {
   const {loggedIn} = useContext(AuthConext);
   return (
     <BrowserRouter>
       <Switch>
-            <Route path="/" exact >
-              <Home />
-          </Route>          
+          <Route path="/" exact >
+            <Home />
+          </Route>   
+          <Route path="/reset/:userID/:token" exact >
+            <ResetPasswordForm />
+          </Route>         
           {
             loggedIn?.success === false && (
               <>

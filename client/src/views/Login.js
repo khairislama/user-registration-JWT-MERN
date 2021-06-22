@@ -8,6 +8,7 @@ export default function Login() {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [emailInput, setEmailInput] = useState("");
     const {getLoggedIn} = useContext(AuthConext);
     const history = useHistory();
     const rememberMe = useRef(false);
@@ -24,14 +25,27 @@ export default function Login() {
             if (loginTry.data.success){
                 await getLoggedIn()
                 history.push("/")
-            }        
+            }
         }catch(err){
             console.error(err)
-        }        
+        }
     }
 
-    async function forgotPassword(){
-        // here goes the forget password algo
+    async function handleForgotPasswordSubmit(e){        
+        e.preventDefault();
+        try{
+            if (username.length < 10) return setEmailInput("feelUp")
+            const emailNotExistInDb = await axios.get(`http://localhost:3001/api/auth/${username}`);
+            if (emailNotExistInDb.data.accept) return setEmailInput("invalid");
+            if (emailNotExistInDb.data.accept === false) {
+                const resetData = await axios.post("http://localhost:3001/api/auth/reset-password", {username})
+                if (resetData.data.success){
+                    setEmailInput("valid")
+                }
+            }            
+        }catch(err){
+            console.error(err)
+        }
     }
 
     async function loginFacebook(){
@@ -62,6 +76,30 @@ export default function Login() {
                             value={username} name="username" required
                             onChange={(e)=> setUsername(e.target.value)}
                         />
+                        {
+                            emailInput === "valid" && 
+                                <p style={{color:"green", fontSize:"11px"}}>
+                                    ✓ Token sent, please check you're email to reset your password ✓
+                                </p>
+                        }
+                        {
+                            emailInput === "invalid" && 
+                                <button style={{color:"red", fontSize:"11px"}}
+                                onClick={()=>{
+                                    history.push("/login")
+                                }} className="loginA forgot-password mb-2" >
+                                    X This email does not exists in our database, click me to create a new account X
+                                </button>
+                        }
+                        {
+                            emailInput === "feelUp" && 
+                                <button style={{color:"red", fontSize:"11px"}}
+                                onClick={()=>{
+                                    history.push("/login")
+                                }} className="loginA forgot-password mb-2" >
+                                    X Please enter your email here X
+                                </button>
+                        }
                         </div>
                         <div className="form-group last my-3">
                         <label htmlFor="password">Password</label>
@@ -77,7 +115,7 @@ export default function Login() {
                             <span className="ms-3">Remember me</span>
                         </label>
                         <span className="ms-auto">
-                            <button onClick={forgotPassword} className="loginA forgot-pass">Forgot Password</button>
+                            <button onClick={handleForgotPasswordSubmit} className="loginA forgot-pass">Forgot Password</button>
                         </span>                         
                         </div>
                         <button onClick={()=>history.push("/register")} className="loginA forgot-pass">Create an account ?</button>
@@ -102,7 +140,7 @@ export default function Login() {
                 </div>
             </div>
             </div>
-        </div>    
+        </div>            
     </div>
     </div>
   )

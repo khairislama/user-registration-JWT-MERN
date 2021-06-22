@@ -1,6 +1,8 @@
 const User              = require("../models/user.model");
+const ResetPassword     = require("../models/resetPassword.model")
 const bcrypt            = require("bcryptjs");
 const jwt               = require("jsonwebtoken");
+const crypto            = require("crypto");
 const nodemailer        = require("nodemailer");
 const JWT_SECRET        = process.env.JWT_SECRET || "hello there this is a secret message that you need to change"
 const MAIL_USERNAME     = process.env.MAIL_USERNAME || "Put you gmail here"
@@ -184,6 +186,33 @@ module.exports.verifyEmail = async (req, res)=>{
     }
 }
 
+module.exports.checkResetPassword = async (req, res)=>{
+    try{
+        const username = req.body.username;
+        const user = await User.findOne({username});
+        token = crypto.randomBytes(32).toString('hex');
+        const salt = await bcrypt.genSalt();
+        const tokenHash = await bcrypt.hash(token, salt);
+        const existingRset = await ResetPassword.findOne({userID: user._id});
+        if (existingRset) await ResetPassword.findByIdAndRemove(existingRset._id)
+        ResetPassword.create({userId: user._id, resetPasswordToken: tokenHash, expire: new Date(new Date().getTime()+(1*60*60*1000)) });
+        sendResetMail(username, tokenHash, user._id);
+
+    } catch(err) {
+        // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
+        res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
+    }
+}
+
+module.exports.resetPassword = async (req, res)=>{
+    try{
+        
+    } catch(err) {
+        // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
+        res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
+    }
+}
+
 function randString(){
     const len=12;
     let randStr = '';
@@ -218,6 +247,37 @@ function sendEmail(email, uniqueString){
             console.log(err);
         }else {
             console.log("Message sent")
+        }
+    })
+}
+
+function sendResetMail(username, tokenHash, userID){
+    var transport = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+            type: 'OAuth2',
+            user: MAIL_USERNAME,
+            pass: MAIL_PASSWORD,
+            clientId: process.env.OAUTH_CLIENTID,
+            clientSecret: process.env.OAUTH_CLIENT_SECRET,
+            refreshToken: process.env.OAUTH_REFRESH_TOKEN
+        }
+    });
+    let mailOptions = {
+        from: MAIL_USERNAME,
+        to: username,
+        subject: 'Reset your account password',
+        html: '<h4><b>Reset Password</b></h4>' +
+        '<p>To reset your password, complete this form:</p>' +
+        '<a href="http://localhost:3000/reset/' + userID + '/' + tokenHash + '">By pressing here</a>' +
+        '<br><br>' +
+        '<p>--Team</p>'
+    }
+    transport.sendMail(mailOptions, (err, res)=>{
+        if (err){
+            res.json({success: false, errorMessage: 'Unable to send email.'});
+        }else {
+            res.json({success: true, message: 'Check your mail to reset your password.'});
         }
     })
 }
