@@ -3,6 +3,7 @@ const ResetPassword     = require("../models/resetPassword.model")
 const bcrypt            = require("bcryptjs");
 const jwt               = require("jsonwebtoken");
 const crypto            = require("crypto");
+const fetch             = require('node-fetch');
 const nodemailer        = require("nodemailer");
 const JWT_SECRET        = process.env.JWT_SECRET || "hello there this is a secret message that you need to change"
 const MAIL_USERNAME     = process.env.MAIL_USERNAME || "Put you gmail here"
@@ -233,6 +234,7 @@ module.exports.resetPassword = async (req, res)=>{
         const user = await User.findById(userID);
         user.passwordHash = passwordHash;
         await user.save();
+        await ResetPassword.findByIdAndRemove(passwordtoReset._id);
         // SIGN THE TOKEN WITH SOME USER DATA THAT WE WILL NEED 
         const newToken = jwt.sign({
             id: user._id, 
@@ -253,6 +255,56 @@ module.exports.resetPassword = async (req, res)=>{
         // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
         res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
     }
+}
+
+module.exports.facebookLogin = async (req, res)=>{
+    try {
+        const {userID, accessToken} = req.body;
+        var token;
+        let urlGraphFacebook = `https://graph.facebook.com/v11.0/${userID}/?fields=id,name,email&access_token=${accessToken}`;
+        fetch(urlGraphFacebook, {
+            method: "GET"
+        }).then(res => res.json())
+        .then(async (response)=>{
+            const {email, name} = response;
+            const user = await User.findOne({username: email});
+            if (!user){           
+                let password = email+JWT_SECRET;
+                const salt = await bcrypt.genSalt();
+                const passwordHash = await bcrypt.hash(password, salt);
+                const uniqueString = crypto.randomBytes(32).toString('hex');
+                let newUser = new User({fullname: name, username: email, passwordHash, uniqueString});
+                const createdUser = await newUser.save();
+                token = jwt.sign({
+                    id: createdUser._id, 
+                    username: createdUser.username, 
+                    fullname: createdUser.fullname,
+                    userImage: createdUser.userImage
+                }, JWT_SECRET, {expiresIn: '7d'});
+                res.cookie("authToken", token, {
+                    httpOnly: true,
+                });
+                // SEND BACK THE DATA
+                res.json({success: true, message: "LoggedIn successfully"}).send();
+            }else{
+                token = jwt.sign({
+                    id: user._id, 
+                    username: user.username, 
+                    fullname: user.fullname,
+                    userImage: user.userImage
+                }, JWT_SECRET, {expiresIn: '7d'});
+                res.cookie("authToken", token, {
+                    httpOnly: true,
+                });
+                // SEND BACK THE DATA
+                res.json({success: true, message: "LoggedIn successfully"}).send();
+            }
+        });
+    } catch(err) {
+        // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
+        res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
+    }
+    
 }
 
 function sendEmail(email, uniqueString){
