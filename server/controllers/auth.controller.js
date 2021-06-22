@@ -39,7 +39,7 @@ module.exports.addUser = async (req, res) =>{
         const passwordHash = await bcrypt.hash(password, salt);
 
         // GENERATE A RANDOM STRING FOR SENDING THE MAIL
-        const uniqueString = randString()
+        const uniqueString = crypto.randomBytes(32).toString('hex');
 
         // SAVING THE NEW USER TO THE DB (USERNAME AND THE HASHED VERSION OF THE PASSWORD)
         const newUser = new User({username, fullname, uniqueString, passwordHash});
@@ -190,12 +190,10 @@ module.exports.checkResetPassword = async (req, res)=>{
     try{
         const username = req.body.username;
         const user = await User.findOne({username});
-        token = crypto.randomBytes(32).toString('hex');
-        const salt = await bcrypt.genSalt();
-        const tokenHash = await bcrypt.hash(token, salt);
+        const tokenHash = crypto.randomBytes(32).toString('hex');
         const existingRset = await ResetPassword.findOne({userID: user._id});
         if (existingRset) await ResetPassword.findByIdAndRemove(existingRset._id)
-        ResetPassword.create({userId: user._id, resetPasswordToken: tokenHash, expire: new Date(new Date().getTime()+(1*60*60*1000)) });
+        ResetPassword.create({userID: user._id, resetPasswordToken: tokenHash, expire: new Date(new Date().getTime()+(1*60*60*1000)) });        
         sendResetMail(username, tokenHash, user._id);
 
     } catch(err) {
@@ -206,21 +204,55 @@ module.exports.checkResetPassword = async (req, res)=>{
 
 module.exports.resetPassword = async (req, res)=>{
     try{
+        const {userID, token, password, repeatPassword } = req.body;
+
+        // ***** VERIFICATIONS *****
+        // TEST IF A FIELD IS EMPTY
+        if (!password || !repeatPassword) 
+            return res.status(400).json({success: false, errorMessage: "please enter all required fields."});
+
+        // TEST IF PASSWORD LENGTH < 6 CARACTERS
+        if (password.length < 6 ) return res.status(400).json({success: false, errorMessage: "please enter a password of at least 6 characters."});
+
+        // TEST IF PASSWORD AND PASSWORD VERIFICATION ARE NOT THE SAME
+        if (password !== repeatPassword) return res.status(400).json({success: false, errorMessage: "please enter the same password twice."});
         
+        // TOKEN
+        const passwordtoReset = await ResetPassword.findOne({userID});
+        if (token !== passwordtoReset.resetPasswordToken) return res.status(401).json({success: false, errorMessage: "wrong token please retry again later, If this errer persists, please contact US"});
+        
+        // VERIFY EXPIRE DATE
+        const datenow = new Date();
+        if (datenow > passwordtoReset.expire) return res.status(401).json({success: false, errorMessage: "token expired"});
+        
+        // ***** ALL GOOD *****
+        //create a password hash
+        const salt = await bcrypt.genSalt();
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        const user = await User.findById(userID);
+        user.passwordHash = passwordHash;
+        await user.save();
+        // SIGN THE TOKEN WITH SOME USER DATA THAT WE WILL NEED 
+        const newToken = jwt.sign({
+            id: user._id, 
+            username: user.username, 
+            fullname: user.fullname,
+            userImage: user.userImage
+        }, JWT_SECRET);
+
+        // SEND THE TOKEN IN A HTTP-Only COOKIE
+        res.cookie("authToken", newToken, {
+            httpOnly: true,
+        });
+
+        // SEND BACK THE DATA
+        res.json({success: true, message: "password changed successfully"}).send();
+
     } catch(err) {
         // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
         res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
     }
-}
-
-function randString(){
-    const len=12;
-    let randStr = '';
-    for (let i=0; i<len; i++) {
-        const ch = Math.floor((Math.random() * 10 ) +1);
-        randStr += ch;
-    }
-    return randStr
 }
 
 function sendEmail(email, uniqueString){
