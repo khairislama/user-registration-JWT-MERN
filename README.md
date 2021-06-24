@@ -17,7 +17,7 @@ MERN Stack with advanced authentication :
 
 - Facebook login. :heavy_check_mark:
 
-- Google login. :x:
+- Google login. :heavy_check_mark:
 
 - Github login. :x:
 
@@ -28,6 +28,8 @@ MERN Stack with advanced authentication :
 - Forgot password feature. :heavy_check_mark:
 
 - Modal for general conditions. :heavy_check_mark:
+
+- Notifications :x:
 
 - Mongodb. :heavy_check_mark:
 
@@ -49,11 +51,11 @@ This repository is code scanning from github for vulnerabilities. Do not use thi
 
 - :ballot_box_with_check: the database url `DATABASE_URL` : mongodb://localhost:27017/your_db_name
 
-- :ballot_box_with_check: a secret string for `JWT_SECRET` variable 
+- :ballot_box_with_check: a secret string for `JWT_SECRET` variable
 
-- :ballot_box_with_check: a gmail account in `MAIL_USERNAME` to handle the mail sending with OAuth2, 
+- :ballot_box_with_check: a gmail account in `MAIL_USERNAME` to handle the mail sending with OAuth2,
 
-- :ballot_box_with_check: your gmail password in `MAIL_PASSWORD` variable 
+- :ballot_box_with_check: your gmail password in `MAIL_PASSWORD` variable
 
 - :ballot_box_with_check: your OAuth2 client ID `OAUTH_CLIENTID`
 
@@ -61,7 +63,7 @@ This repository is code scanning from github for vulnerabilities. Do not use thi
 
 - :ballot_box_with_check: your refresh token in `OAUTH_REFRESH_TOKEN`
 
-### to get your OAuth2 variables, create one in google console 
+### to get your OAuth2 variables, create one in google console
 
 ## :information_source: Installation
 

@@ -7,6 +7,8 @@ import { Modal } from 'react-bootstrap';
 import AuthConext from '../context/AuthContext';
 import GeneralConditionsModel from '../context/GeneralConditionsModel';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+import { GoogleLogin } from 'react-google-login';
+import env from 'react-dotenv';
 
 export default function Register() {
 
@@ -72,6 +74,17 @@ export default function Register() {
         }
     }
 
+    const responseGoogle = async (response) => {
+        const data ={
+            tokenId: response.tokenId
+        }
+        const loginTry = await axios.post("http://localhost:3001/api/auth/googlelogin", data);
+        if (loginTry.data.success){
+            await getLoggedIn()
+            history.push("/")
+        }
+    }
+
     function closeModal(){
         setModalOpen(false)
     }
@@ -98,7 +111,18 @@ export default function Register() {
                                 ><i className="fab fa-facebook-f"></i></button>
                               )}
                         /> 
-                        <button className="btn btn-google btn-circle col-3 ms-5 me-4"><i className="fab fa-google"></i></button>
+                        <GoogleLogin
+                            clientId={env.CLIENTID}
+                            render={renderProps => (
+                                <button onClick={renderProps.onClick} disabled={renderProps.disabled} className="btn btn-google btn-circle col-3 ms-5 me-4">
+                                    <i className="fab fa-google"></i>
+                                </button>
+                              )}                          
+                            buttonText="Login with Google"
+                            onSuccess={responseGoogle}
+                            onFailure={responseGoogle}
+                            cookiePolicy={'single_host_origin'}
+                        />
                         <button className="btn btn-github btn-circle col-3 ms-5 me-4"><i className="fab fa-github"></i></button>                        
                         <button className="btn btn-linkedIn btn-circle col-3 ms-5"><i className="fab fa-linkedin"></i></button>
                     </div>

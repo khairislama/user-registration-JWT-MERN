@@ -4,6 +4,8 @@ import '../assets/stylesheets/login.css'
 import axios from 'axios'
 import AuthConext from '../context/AuthContext';
 import FacebookLogin from 'react-facebook-login';
+import { GoogleLogin } from 'react-google-login';
+import env from 'react-dotenv';
 
 export default function Login() {
 
@@ -61,9 +63,17 @@ export default function Login() {
         }
     }
 
-    async function loginGmail(){
-        // HERE GOES THE LOGIN GMAIL ALGO
+    const responseGoogle = async (response) => {
+        const data ={
+            tokenId: response.tokenId
+        }
+        const loginTry = await axios.post("http://localhost:3001/api/auth/googlelogin", data);
+        if (loginTry.data.success){
+            await getLoggedIn()
+            history.push("/")
+        }
     }
+      
 
   return (
     <div className="login">
@@ -134,14 +144,23 @@ export default function Login() {
                             callback={responseFacebook}
                             cssClass="loginA btn col-12 py-2 my-1 btn-facebook"
                             icon="fab fa-facebook-f me-3"
+                        />
+                        <GoogleLogin
+                            clientId={env.CLIENTID}
+                            render={renderProps => (
+                                <button onClick={renderProps.onClick} disabled={renderProps.disabled} className="loginA btn col-12 py-2 my-1 btn-google">
+                                    <i className="fab fa-google me-3"></i> Login with Google
+                                </button>
+                              )}                          
+                            buttonText="Login with Google"
+                            onSuccess={responseGoogle}
+                            onFailure={responseGoogle}
+                            cookiePolicy={'single_host_origin'}
                         />                        
-                        <button onClick={loginGmail} className="loginA btn col-12 py-2 my-1 btn-google">
-                            <i className="fab fa-google me-3"></i> Login with Google
-                        </button>
-                        <button onClick={loginGmail} className="loginA btn col-12 py-2 my-1 btn-github">
+                        <button className="loginA btn col-12 py-2 my-1 btn-github">
                             <i className="fab fa-github me-3"></i> Login with Github
                         </button>
-                        <button onClick={loginGmail} className="loginA btn col-12 py-2 my-1 btn-linkedIn">
+                        <button className="loginA btn col-12 py-2 my-1 btn-linkedIn">
                             <i className="fab fa-linkedin me-3"></i> Login with LinkedIn
                         </button>
                         </div>

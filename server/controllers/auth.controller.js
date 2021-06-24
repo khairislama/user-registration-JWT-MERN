@@ -4,10 +4,12 @@ const bcrypt            = require("bcryptjs");
 const jwt               = require("jsonwebtoken");
 const crypto            = require("crypto");
 const fetch             = require('node-fetch');
+const {OAuth2Client}    = require('google-auth-library');
 const nodemailer        = require("nodemailer");
 const JWT_SECRET        = process.env.JWT_SECRET || "hello there this is a secret message that you need to change"
 const MAIL_USERNAME     = process.env.MAIL_USERNAME || "Put you gmail here"
 const MAIL_PASSWORD     = process.env.MAIL_PASSWORD || "Put your password here"
+const client            = new OAuth2Client(process.env.OAUTH_CLIENTID);
 
 module.exports.addUser = async (req, res) =>{
     try{
@@ -276,6 +278,8 @@ module.exports.facebookLogin = async (req, res)=>{
                 const uniqueString = crypto.randomBytes(32).toString('hex');
                 let newUser = new User({fullname: name, username: email, passwordHash, uniqueString});
                 const createdUser = await newUser.save();
+                // SEND EMAIL
+                sendEmail(username, uniqueString)
                 token = jwt.sign({
                     id: createdUser._id, 
                     username: createdUser.username, 
@@ -306,6 +310,54 @@ module.exports.facebookLogin = async (req, res)=>{
         res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
     }
     
+}
+
+module.exports.googlelogin = async (req, res)=>{
+    try{
+        const { tokenId } = req.body;
+        const ticket = await client.verifyIdToken({idToken: tokenId, audience: process.env.OAUTH_CLIENTID})
+        const payload = ticket.getPayload()
+        if (!payload.email_verified) return res.status(204).json({success: false, errorMessage: 'No content found please retry later'});
+        const user = await User.findOne({username: payload.email});
+        if (user) {
+            const token = jwt.sign({
+                id: user._id, 
+                username: user.username, 
+                fullname: user.fullname,
+                userImage: user.userImage
+            }, JWT_SECRET, {expiresIn: '7d'});
+            res.cookie("authToken", token, {
+                httpOnly: true
+            });
+            // SEND BACK THE DATA
+            res.status(200).json({success: true, message: "LoggedIn successfully"}).send();
+        }
+        if (!user) {
+            let password = payload.email+JWT_SECRET;
+            const salt = await bcrypt.genSalt();
+            const passwordHash = await bcrypt.hash(password, salt);
+            const uniqueString = crypto.randomBytes(32).toString('hex');
+            let newUser = new User({fullname: payload.name, username: payload.email, passwordHash, uniqueString});
+            const user = await newUser.save();
+            // SEND EMAIL
+            sendEmail(user.username, uniqueString)
+            if (!user) return res.status(400).json({success: false, errorMessage: 'Something went wrong...'});
+            const token = jwt.sign({
+                id: user._id, 
+                username: user.username, 
+                fullname: user.fullname,
+                userImage: user.userImage
+            }, JWT_SECRET, {expiresIn: '7d'});
+            res.cookie("authToken", token, {
+                httpOnly: true
+            });
+            // SEND BACK THE DATA
+            res.status(200).json({success: true, message: "LoggedIn successfully"}).send();
+        }
+    } catch(err) {
+        // IF THERE IS AN ERROR WE SEND A STATUS CODE 500 WITH AN ERROR MESSAGE
+        res.status(500).send({success: false, errorMessage: "Internal server error", error: err});
+    }
 }
 
 function sendEmail(email, uniqueString){
