@@ -41,7 +41,7 @@ MERN Stack with advanced authentication :
 
 - Nodejs. :heavy_check_mark:
 
-## :lock: Security
+## :lock: Security.
 
 This repository is code scanning from github for vulnerabilities. Do not use this code blindly, audit it first.
 
